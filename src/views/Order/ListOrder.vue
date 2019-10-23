@@ -3,76 +3,52 @@
         <div slot="head">
             <modal :height="700" @before-open="beforeOpen" name="addExtra">
                 <div class="modal-header">
-                    Add Extra
+                    View Order
                 </div>
                 <div class="modal-dialog" role="document">
-                    <form @submit.prevent="addExtra()">
                         <div class="modal-content" style="background-color:#FFF">
                             <div class="modal-body mx-3">
-                                <div class="md-form mb-5 form-space">
-
-                                    <label data-error="wrong" data-success="right">Name</label>
-
-
-                                    <input class="form-control validate form-input" ref="contents" type="text"
-                                           v-model="extra_name">
+                                <div class="md-form mb-3 form-space">
+                                    <label> Order</label>
+                                    <div class="input-group">
+                                        <label class="form-control">Name : {{detail.Name}} </label>
+                                        <label class="form-control">Total : {{detail.Price}} </label>
+                                    </div>
                                 </div>
-                                <div class="md-form mb-5">
-                                    <label data-error="wrong" data-success="right">Price</label>
-                                    <input class="form-control validate form-input" ref="periods" type="text"
-                                           v-model="extra_price">
+                                <div class="md-form mb-3 form-space">
+                                    <label> Order Details</label>
+                                    <div class="input-group" v-for="(order, index) in detail.order" :key="index">
+                                        <label class="form-control">Name : {{order.name}} </label>
+                                        <label class="form-control">Price : {{order.price}} </label>
+                                    </div>
                                 </div>
-
+                                <div class="md-form mb-3 form-space">
+                                    <label> User</label>
+                                    
+                                        <div class="input-group">
+                                            <label class="form-control">State : {{detail.State}} </label>
+                                            <label class="form-control">LGA : {{detail.LGA}} </label>
+                                        </div>
+                                        <div class="input-group">
+                                            <label class="form-control">Address : {{detail.Address}} </label>
+                                            <label class="form-control">State : {{detail.Phone}} </label>
+                                        </div>
+                                </div>
 
                             </div>
                             <div class="modal-footer d-flex justify-content-center">
-
-                                <button class="btn btn-primary">Add Extra
-                                    <i class="mdi mdi-account-edit mdi-18px float-left text-color"></i>
-                                </button>
+                                <form @submit.prevent="acceptOrder(detail.uuid)">
+                                    <button class="btn btn-success">Accept
+                                        <i class="mdi mdi-account-edit mdi-18px float-left text-color"></i>
+                                    </button>
+                                </form>
+                                <form @submit.prevent="rejectOrder(detail.uuid)">
+                                    <button class="btn btn-danger">Reject
+                                        <i class="mdi mdi-account-edit mdi-18px float-left text-color"></i>
+                                    </button>
+                                </form>
                             </div>
                         </div>
-                    </form>
-                </div>
-
-                <div class="modal-footer">
-                    <!-- <button @click="closeEditEvent" class="btn btn-primary mx-auto">Close</button> -->
-                </div>
-            </modal>
-
-            <!-- edit food -->
-            <modal :height="700" @before-open="beforeOpen" name="editFood">
-                <div class="modal-header">
-                    Edit Food
-                </div>
-                <div class="modal-dialog" role="document">
-                    <form @submit.prevent="updateFood()">
-                        <div class="modal-content" style="background-color:#FFF">
-                            <div class="modal-body mx-3">
-                                <div class="md-form mb-5 form-space">
-
-                                    <label data-error="wrong" data-success="right">Name</label>
-
-
-                                    <input class="form-control validate form-input" ref="contents" type="text"
-                                           v-model="extra_name">
-                                </div>
-                                <div class="md-form mb-5">
-                                    <label data-error="wrong" data-success="right">Price</label>
-                                    <input class="form-control validate form-input" ref="periods" type="text"
-                                           v-model="extra_price">
-                                </div>
-
-
-                            </div>
-                            <div class="modal-footer d-flex justify-content-center">
-
-                                <button class="btn btn-primary">Add Extra
-                                    <i class="mdi mdi-account-edit mdi-18px float-left text-color"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </form>
                 </div>
 
                 <div class="modal-footer">
@@ -88,7 +64,7 @@
                     <h3 class="page-title">
                         <span class="page-title-icon bg-gradient-primary text-white mr-2"> <i
                                 class="mdi mdi-account-card-details"></i></span>
-                        List Category
+                        List Orders
                     </h3>
                 </div>
                 <div class="row">
@@ -127,7 +103,8 @@
                                                     <table-actions :actions=actions
                                                                    :data=data.item
                                                                    @openExtra="openExtra"
-                                                                   @openEdit="openEdit"
+                                                                   @acceptOrder="acceptOrder"
+                                                                   @rejectOrder="rejectOrder"
                                                                    @viewAdDetails="viewAdDetails"></table-actions>
                                                 </template>
                                             </b-table>
@@ -151,6 +128,8 @@
     import Loader from '../../components/Loader/Loader'
     import {Category} from "../../services/Category.services";
     import {Category as Food} from "../../services/Food.services";
+    import {Order} from "../../services/order.services";
+    import moment from "moment";
 
     const action = [
         {
@@ -159,24 +138,24 @@
             title: "Options",
             dropdown: [
                 {
-                    args: ['uuid'],
+                    args: ['detail'],
                     callback: 'openExtra',
-                    text: 'Add Extra',
-                },
-                {
-                    args: ['uuid'],
-                    callback: 'openEdit',
-                    text: 'Edit Food',
-                },
-                {
-                    args: ['uuid'],
-                    callback: 'viewAdDetails',
                     text: 'View',
+                },
+                {
+                    args: ['uuid'],
+                    callback: 'acceptOrder',
+                    text: 'Accept',
+                },
+                {
+                    args: ['uuid'],
+                    callback: 'rejectOrder',
+                    text: 'Reject',
                 }
-                
             ]
         }
     ];
+
     export default {
         components: {Layout, Loader, TableActions},
         name: "ListCategory",
@@ -184,7 +163,7 @@
             return {
                 title: "ListCategories",
                 actions: action,
-                columnsHeader: ['Icon', 'Name', 'Description', 'Price', 'actions'],
+                columnsHeader: ['Number', 'Name', 'Status', 'Price','State','LGA', 'Time', 'actions'],
                 ads: [],
                 contentData: {},
                 currentPage: 1,
@@ -196,6 +175,7 @@
                 searchable: true,
                 loading: true,
                 allContent: [],
+                detail: [],
                 isLoading: false,
                 loadingText: 'loading',
                 currentAd: '',
@@ -208,18 +188,20 @@
             }
         },
         async created() {
-            await this.fetchCategories();
+            await this.fetchOrders();
+            // await this.fetchCategories();
+            
         },
         watch: {
             perPage: {
                 handler: function () {
                     this.currentPage = 1;
-                    this.fetchCategories();
+                    this.fetchOrders();
                 }
             },
             currentPage: {
                 handler: async function () {
-                    await this.fetchCategories();
+                    await this.fetchOrders();
                 }
             },
             filter: {
@@ -228,7 +210,7 @@
                     if (value.length > 2) {
                         this.searchAds();
                     } else if (oldVal.length > 0 && value.length === 0) {
-                        this.fetchCategories();
+                        this.fetchOrders();
                     }
                 }
             },
@@ -242,23 +224,40 @@
         },
 
         methods: {
-            fetchCategories() {
+            fetchOrders(){
                 this.loading = true;
-                Food.listFood(this.perPage, this.currentPage).then((response) => {
-                    this.fillCategory(response);
-                }).catch(() => {
+                Order.list(this.perPage, this.currentPage).then((response)=>{
+                    this.sortOrders(response);
+                }).catch(()=>{
+
                 });
             },
-            fillCategory(data = []) {
+            sortOrders(data){
                 this.allContent = [];
+                let n = 0;
                 this.total = data.total;
-                data.data.forEach(({image_url: image_url, name: name, uuid: uuid, description: description, price: price}) => {
+                data.data.forEach((order) => {
+                    const orders = JSON.parse(order.orders)
+                    const address = JSON.parse(order.address)
+                    let detail = {
+                        Number : ++n,
+                        detail: order,
+                        Name: orders[0].food,
+                        order: orders,
+                        Address: address.address,
+                        State: address.state,
+                        LGA: address.lga,
+                        Phone: address.phone,
+                        Time: moment(order.created_at).add(1, 'hour').fromNow(),
+                        Price: order.price,
+                        uuid: order.uuid,
+                        Status: order.status,
+                        Paid: order.paid,
+                    }
+                     
                     this.allContent.push({
-                        Icon: '<img src="' + image_url + '"/>',
-                        Name: name,
-                        Description: description,
-                        Price: price,
-                        uuid: uuid
+                        ...detail,
+                        detail: detail
                     });
                 });
                 this.loading = false;
@@ -266,32 +265,31 @@
             beforeOpen(event) {
                 this.editData = event.params;
             },
-            async addExtra(uuid) {
+            async acceptOrder(uuid) {
                 this.isLoading = true;
-                let data = {
-                    food_uuid: this.catuuid,
-                    name: this.extra_name,
-                    price: this.extra_price
-                };
-                await Food.addExtra(data).then((res) => {
-                    this.extra_name = '';
-                    this.extra_price = '';
-                    this.$toastr.success(res.message, {timeOut: 5000});
-
-                }).catch((error) => {
-                    this.$toastr.error(error.error.message, "Update Ads Content Creation failed!", {timeOut: 5000});
-                });
-                this.isLoading = false;
+                await Order.accept(uuid).then((res)=>{
+                    this.isLoading = false;
+                    this.$toastr.success(res.message);
+                    this.fetchOrders()
+                }).catch((error)=> {
+                    
+                })
             },
-            openExtra(uuid) {
-                this.catuuid = uuid;
+            async rejectOrder(uuid) {
+                this.isLoading = true;
+                await Order.reject(uuid).then((res)=>{
+                    this.isLoading = false;
+                    this.$toastr.success(res.message);
+                    this.fetchOrders()
+                }).catch((error)=> {
+                    
+                })
+            },
+            openExtra(detail) {
+                this.detail = detail
+                this.catuuid = detail.uuid;
                     this.$modal.show('addExtra');
             },
-            openEdit(uuid){
-                 this.catuuid = uuid;
-                    this.$modal.show('editFood');
-            },
-
             viewAdDetails(AdID) {
             },
             openUpdateAdvert(AdID, content, period, target, campaign) {

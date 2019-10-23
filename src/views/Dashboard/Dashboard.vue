@@ -17,10 +17,10 @@
                             <div class="card-body">
                                 <img src="../../assets/images/circle.svg" class="card-img-absolute"
                                      alt="circle-image"/>
-                                <h4 class="font-weight-normal mb-3">Total Ads
+                                <h4 class="font-weight-normal mb-3">Total Food
                                     <i class="mdi mdi-cards mdi-18px float-right"></i>
                                 </h4>
-                                <h2 class="mb-5">{{dashboardData.total_ads || 0}}</h2>
+                                <h2 class="mb-5">{{dashboardData.total_food || 0}}</h2>
                                 <!--<h6 class="card-text">Decreased by 10%</h6>-->
                             </div>
                         </div>
@@ -30,10 +30,10 @@
                             <div class="card-body">
                                 <img src="../../assets/images/circle.svg" class="card-img-absolute"
                                      alt="circle-image"/>
-                                <h4 class="font-weight-normal mb-3">Total Impression
+                                <h4 class="font-weight-normal mb-3">Total Orders
                                     <i class="mdi mdi-nature-people mdi-18px float-right"></i>
                                 </h4>
-                                <h2 class="mb-5">{{dashboardData.total_impressions || 0}}</h2>
+                                <h2 class="mb-5">{{dashboardData.total_orders || 0}}</h2>
                                 <!--<h6 class="card-text">Increased by 5%</h6>-->
                             </div>
                         </div>

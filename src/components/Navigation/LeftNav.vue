@@ -66,6 +66,27 @@
                 </div>
             </li>
 
+            <li class="nav-item" v-bind:class="{ active: ['AddAdsContent','ListOrder','ListAdsType'].includes(currentPage)}">
+                <a class="nav-link collapsed" data-toggle="collapse" href="#order-content" aria-expanded="false"
+                   aria-controls="order-content">
+                    <span class="menu-title">Manage Orders</span>
+                    <i class="menu-arrow"></i>
+                    <i class="mdi mdi-account-key menu-icon"></i>
+                </a>
+                <div class="collapse" id="order-content" style="" v-bind:class="{ show: ['ListPeak','AddAdsContent','ListAds','ListAdsType'].includes(currentPage)}">
+                    <ul class="nav flex-column sub-menu">
+                        <li class="nav-item">
+                            <router-link class="nav-link" :to="{name: 'ListOrder'}"> List Orders</router-link>
+                        </li>
+                        <li class="nav-item">
+                            <router-link class="nav-link" :to="{name: 'ListFood'}">List Food</router-link>
+                        </li>
+
+
+                    </ul>
+                </div>
+            </li>
+
 
 
             <li class="nav-item" v-bind:class="{ active: ['contentSettings'].includes(currentPage)}">

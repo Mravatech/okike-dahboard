@@ -10,6 +10,7 @@ import AddCategory from "./views/Category/AddCategory";
 import ListCategory from "./views/Category/ListCategory";
 import AddFood from "./views/Food/AddFood";
 import ListFood from "./views/Food/ListFood";
+import ListOrder from "./views/Order/ListOrder";
 
 Vue.use(Router);
 
@@ -68,6 +69,12 @@ const router = new Router({
             name: 'ListFood',
             component: ListFood,
         },
+        {
+            path: '/order/list',
+            name: 'ListOrder',
+            component: ListOrder,
+        },
+        
         {
             path: '/change-password',
             name: 'ChangePassword',
