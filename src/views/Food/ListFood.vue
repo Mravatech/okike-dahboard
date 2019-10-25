@@ -18,7 +18,7 @@
                                            v-model="extra_name">
                                 </div>
                                 <div class="md-form mb-5">
-                                    <label data-error="wrong" data-success="right">Price</label>
+                                    <label data-error="wrong" data-success="right">Food Price</label>
                                     <input class="form-control validate form-input" ref="periods" type="text"
                                            v-model="extra_price">
                                 </div>
@@ -58,7 +58,7 @@
                                            v-model="extra_name">
                                 </div>
                                 <div class="md-form mb-5">
-                                    <label data-error="wrong" data-success="right">Price</label>
+                                    <label data-error="wrong" data-success="right">Food Price</label>
                                     <input class="form-control validate form-input" ref="periods" type="text"
                                            v-model="extra_price">
                                 </div>
@@ -73,6 +73,97 @@
                             </div>
                         </div>
                     </form>
+                </div>
+
+                <div class="modal-footer">
+                    <!-- <button @click="closeEditEvent" class="btn btn-primary mx-auto">Close</button> -->
+                </div>
+            </modal>
+
+            <modal :height="400" @before-open="beforeOpen" name="promo">
+                <div class="modal-header">
+                    Promo
+                </div>
+                <div class="modal-dialog" role="document">
+                    <form @submit.prevent="tagFood()">
+                        <div class="modal-content" style="background-color:#FFF">
+                            <div class="modal-body mx-3">
+                                <div class="md-form mb-5 form-space">
+
+                                    <label data-error="wrong" data-success="right">Discount Price</label>
+
+
+                                    <input class="form-control validate form-input" ref="contents" type="text"
+                                           v-model="discount">
+                                </div>
+                                
+
+                            </div>
+                            <div class="modal-footer d-flex justify-content-center">
+
+                                <button class="btn btn-success">Tag Food as Promo
+                                    <i class="mdi mdi-account-edit mdi-18px float-left text-color"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="modal-footer">
+                    <!-- <button @click="closeEditEvent" class="btn btn-primary mx-auto">Close</button> -->
+                </div>
+            </modal>
+
+             <!-- Vood food -->
+            <modal :height="700" @before-open="beforeOpen" name="viewFood">
+                <div class="modal-header">
+                    View Food
+                </div>
+                <div class="modal-dialog" role="document">
+                    
+                        <div class="modal-content" style="background-color:#FFF">
+                            <div class="modal-body mx-3">
+                                <img :src="data.image_url" alt="" class="food-banner">
+                                <div class="md-form mb-3 form-space">
+                                    <label> Food Details</label>
+                                    <div class="input-group">
+                                        <label class="form-control">Name : {{data.name}}</label>
+                                        <label class="form-control">Price : {{data.price}} </label>
+                                    </div>
+                                     <div class="input-group">
+                                        <label class="form-control">Description : {{data.description}}</label>
+                                        <label class="form-control">Category : {{data.category_name }} </label>
+                                    </div>
+                                    <div class="input-group">
+                                        <label class="form-control">Promo : {{data.status}}</label>
+                                        <label class="form-control">Discount Price : {{data.discount_price}} </label>
+                                    </div>
+                                </div>
+
+                                <div class="md-form mb-3 form-space">
+                                    <label> Food Extra</label>
+                                    <div class="input-group" v-for="(order, index) in data.extra" :key="index">
+                                        <label class="form-control">Name : {{order.name}} </label>
+                                        <label class="form-control">Price : {{order.price}} </label>
+                                    </div>
+                                </div>
+
+
+                            </div>
+                            <div class="modal-footer d-flex justify-content-center">
+                                <form @submit.prevent="openPromo()">
+                                <button class="btn btn-success">Tag as Promo
+                                    <i class="mdi mdi-account-edit mdi-18px float-left text-color"></i>
+                                </button>
+                                </form>
+                                <form @submit.prevent="deleteFood(data.uuid)">
+                                 <button class="btn btn-danger">Delete
+                                    <i class="mdi mdi-account-edit mdi-18px float-left text-color"></i>
+                                </button>
+                                </form>
+                            </div>
+                        </div>
+                    
                 </div>
 
                 <div class="modal-footer">
@@ -128,7 +219,7 @@
                                                                    :data=data.item
                                                                    @openExtra="openExtra"
                                                                    @openEdit="openEdit"
-                                                                   @viewAdDetails="viewAdDetails"></table-actions>
+                                                                   @viewDetail="viewDetail"></table-actions>
                                                 </template>
                                             </b-table>
                                             <b-pagination :per-page="perPage" :total-rows="total" size="md"
@@ -151,6 +242,7 @@
     import Loader from '../../components/Loader/Loader'
     import {Category} from "../../services/Category.services";
     import {Category as Food} from "../../services/Food.services";
+import { error } from 'util';
 
     const action = [
         {
@@ -170,8 +262,8 @@
                 },
                 {
                     args: ['uuid'],
-                    callback: 'viewAdDetails',
-                    text: 'View',
+                    callback: 'viewDetail',
+                    text: 'View Food',
                 }
                 
             ]
@@ -197,6 +289,7 @@
                 loading: true,
                 allContent: [],
                 isLoading: false,
+                isPromo: false,
                 loadingText: 'loading',
                 currentAd: '',
                 currentAmount: 0,
@@ -204,7 +297,9 @@
                 user: this.$store.getters.GET_USER,
                 extra_price: 0,
                 extra_name: '',
-                catuuid: ''
+                catuuid: '',
+                data: [],
+                discount: 0
             }
         },
         async created() {
@@ -283,30 +378,75 @@
                 });
                 this.isLoading = false;
             },
+            async getFood(uuid){
+                this.isLoading = true;
+                await Food.foodDetail(this.catuuid).then((res)=> {
+                    let data = res.data;
+                    this.data = {
+                        ...data,
+                        'category_name' : data.category.name
+                    }
+                }).catch((error) => {
+
+                })
+                this.isLoading = false;
+            },
+            async deleteFood(uuid){
+                this.isLoading = true;
+                await Food.deleteFood(this.catuuid).then((res)=> {
+                    this.data = [];
+                    this.$toastr.success(res.message, {timeOut: 5000});
+                    this.$modal.hide('viewFood');
+                }).catch((error)=> {
+
+                })
+                this.isLoading=false
+            },
+            async tagFood(uuid){
+                this.isLoading = true;
+                if (this.discount != 0){
+                    let data = {
+                        'discount' : this.discount
+                    }
+                    await Food.tagFood(this.catuuid, data).then((res)=> {
+                    this.data = [];
+                    this.$toastr.success(res.message, {timeOut: 5000});
+                    this.$modal.hide('viewFood');
+                }).catch((error)=> {
+
+                })
+                this.isLoading=false
+                }
+                
+            },
             openExtra(uuid) {
                 this.catuuid = uuid;
                     this.$modal.show('addExtra');
             },
             openEdit(uuid){
-                 this.catuuid = uuid;
-                    this.$modal.show('editFood');
+                this.catuuid = uuid;
+                this.getFood();
+                this.$modal.show('editFood');
             },
-
-            viewAdDetails(AdID) {
+            openPromo(){
+                this.$modal.hide('viewFood');
+                this.$modal.show('promo');
             },
-            openUpdateAdvert(AdID, content, period, target, campaign) {
-                this.$modal.show('updatePeak', {
-                    AdID: AdID,
-                    content: content,
-                    period: period,
-                    target: target,
-                    campaign: campaign
-                })
+            viewDetail(uuid) {
+                this.catuuid = uuid;
+                this.getFood();
+                this.$modal.show('viewFood');
             },
         }
     }
 </script>
 
 <style scoped>
-
+.food-banner{
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    margin:auto;
+    display: block;
+}
 </style>
